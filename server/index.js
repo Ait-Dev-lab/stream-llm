@@ -82,7 +82,7 @@ async function tokenize(text) {
 // ==========================================
 async function generateResponse(promptText, maxTokens) {
     var tokens = await tokenize(promptText);
-    console.log("Tokenized: " + tokens.length + " tokens from "" + promptText.substring(0, 60) + "..."");
+    console.log("Tokenized: " + tokens.length + " tokens");
     
     var responsePhrases = [
         "Let me analyze that research question carefully.",
