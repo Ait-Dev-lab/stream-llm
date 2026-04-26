@@ -1,0 +1,624 @@
+{
+  "model_name": "Llama-3.2-3B-Instruct-Q4_K_M",
+  "source_url": "https://huggingface.co/unsloth/Llama-3.2-3B-Instruct-GGUF/resolve/main/Llama-3.2-3B-Instruct-Q4_K_M.gguf",
+  "total_layers": 28,
+  "total_shards": 30,
+  "shard_size_target_mb": 80,
+  "shards": [
+    {
+      "id": 0,
+      "filename": "shard_000.bin",
+      "size_bytes": 323205376,
+      "checksum": "sha256:1827d1642f9a8ca57a47b5ce26a56c32cfe08aa238eb600f630877dbce5c559f",
+      "tensor_count": 2,
+      "layers": [
+        -1
+      ],
+      "tensor_names": [
+        "token_embd.weight",
+        "rope_freqs.weight"
+      ]
+    },
+    {
+      "id": 1,
+      "filename": "shard_001.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:c6af3278c2e20a4d32f350ebbe8bb4f9e22520c79bc8f9ba45b619c80814791e",
+      "tensor_count": 8,
+      "layers": [
+        0
+      ],
+      "tensor_names": [
+        "blk.0.attn_k.weight",
+        "blk.0.attn_norm.weight",
+        "blk.0.attn_q.weight",
+        "blk.0.attn_v.weight",
+        "blk.0.ffn_down.weight",
+        "blk.0.ffn_gate.weight",
+        "blk.0.ffn_norm.weight",
+        "blk.0.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 2,
+      "filename": "shard_002.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:82db90fc5208a810e573e3a2cae483bd631aca9f031d6d8960123ff5684a2e4c",
+      "tensor_count": 8,
+      "layers": [
+        1
+      ],
+      "tensor_names": [
+        "blk.1.attn_k.weight",
+        "blk.1.attn_norm.weight",
+        "blk.1.attn_q.weight",
+        "blk.1.attn_v.weight",
+        "blk.1.ffn_down.weight",
+        "blk.1.ffn_gate.weight",
+        "blk.1.ffn_norm.weight",
+        "blk.1.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 3,
+      "filename": "shard_003.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:f5d078a09d5b0b0cb1201f1a6d5e0c9b3abeaf89b13738a51780e54ccce623c6",
+      "tensor_count": 8,
+      "layers": [
+        2
+      ],
+      "tensor_names": [
+        "blk.2.attn_k.weight",
+        "blk.2.attn_norm.weight",
+        "blk.2.attn_q.weight",
+        "blk.2.attn_v.weight",
+        "blk.2.ffn_down.weight",
+        "blk.2.ffn_gate.weight",
+        "blk.2.ffn_norm.weight",
+        "blk.2.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 4,
+      "filename": "shard_004.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:97c515cd186ea12cfd94848c6cb0a10827abbefb115479e8409d9131c5dc5cac",
+      "tensor_count": 8,
+      "layers": [
+        3
+      ],
+      "tensor_names": [
+        "blk.3.attn_k.weight",
+        "blk.3.attn_norm.weight",
+        "blk.3.attn_q.weight",
+        "blk.3.attn_v.weight",
+        "blk.3.ffn_down.weight",
+        "blk.3.ffn_gate.weight",
+        "blk.3.ffn_norm.weight",
+        "blk.3.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 5,
+      "filename": "shard_005.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:d29fd7a3de70746d8db50dd74e314915edc9d3955c43996c98a8126cc1ffa57b",
+      "tensor_count": 8,
+      "layers": [
+        4
+      ],
+      "tensor_names": [
+        "blk.4.attn_k.weight",
+        "blk.4.attn_norm.weight",
+        "blk.4.attn_q.weight",
+        "blk.4.attn_v.weight",
+        "blk.4.ffn_down.weight",
+        "blk.4.ffn_gate.weight",
+        "blk.4.ffn_norm.weight",
+        "blk.4.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 6,
+      "filename": "shard_006.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:dc128622796498e4c001dadcf040badae0836235c39c0e796862fdcf98b202d3",
+      "tensor_count": 8,
+      "layers": [
+        5
+      ],
+      "tensor_names": [
+        "blk.5.attn_k.weight",
+        "blk.5.attn_norm.weight",
+        "blk.5.attn_q.weight",
+        "blk.5.attn_v.weight",
+        "blk.5.ffn_down.weight",
+        "blk.5.ffn_gate.weight",
+        "blk.5.ffn_norm.weight",
+        "blk.5.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 7,
+      "filename": "shard_007.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:13f38527eb5ac7e38d4ebe5049723f79c5171728c94c2a6d300f9bce59191711",
+      "tensor_count": 8,
+      "layers": [
+        6
+      ],
+      "tensor_names": [
+        "blk.6.attn_k.weight",
+        "blk.6.attn_norm.weight",
+        "blk.6.attn_q.weight",
+        "blk.6.attn_v.weight",
+        "blk.6.ffn_down.weight",
+        "blk.6.ffn_gate.weight",
+        "blk.6.ffn_norm.weight",
+        "blk.6.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 8,
+      "filename": "shard_008.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:91f463b7fa4018a2c9e8f8e0e3e1544c1cf599326abe93425903c07b9b312420",
+      "tensor_count": 8,
+      "layers": [
+        7
+      ],
+      "tensor_names": [
+        "blk.7.attn_k.weight",
+        "blk.7.attn_norm.weight",
+        "blk.7.attn_q.weight",
+        "blk.7.attn_v.weight",
+        "blk.7.ffn_down.weight",
+        "blk.7.ffn_gate.weight",
+        "blk.7.ffn_norm.weight",
+        "blk.7.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 9,
+      "filename": "shard_009.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:30b6852b0c9d5b8656b7d39a75dbeb1edc267e7ead741090a15db12279ee48d1",
+      "tensor_count": 8,
+      "layers": [
+        8
+      ],
+      "tensor_names": [
+        "blk.8.attn_k.weight",
+        "blk.8.attn_norm.weight",
+        "blk.8.attn_q.weight",
+        "blk.8.attn_v.weight",
+        "blk.8.ffn_down.weight",
+        "blk.8.ffn_gate.weight",
+        "blk.8.ffn_norm.weight",
+        "blk.8.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 10,
+      "filename": "shard_010.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:902b4c10e4511e13d289e29cd3e05c675a72ffe6e6e085941b8b1b86925b4fc1",
+      "tensor_count": 8,
+      "layers": [
+        9
+      ],
+      "tensor_names": [
+        "blk.9.attn_k.weight",
+        "blk.9.attn_norm.weight",
+        "blk.9.attn_q.weight",
+        "blk.9.attn_v.weight",
+        "blk.9.ffn_down.weight",
+        "blk.9.ffn_gate.weight",
+        "blk.9.ffn_norm.weight",
+        "blk.9.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 11,
+      "filename": "shard_011.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:8f4416f638768e31f661d7d4ef32a84e56aee7ff6d5d77f14c70a193c1ec3f9d",
+      "tensor_count": 8,
+      "layers": [
+        10
+      ],
+      "tensor_names": [
+        "blk.10.attn_k.weight",
+        "blk.10.attn_norm.weight",
+        "blk.10.attn_q.weight",
+        "blk.10.attn_v.weight",
+        "blk.10.ffn_down.weight",
+        "blk.10.ffn_gate.weight",
+        "blk.10.ffn_norm.weight",
+        "blk.10.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 12,
+      "filename": "shard_012.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:98638bd22c0769ae704ab56b52fa5c0d73ca6c207fe1cdd8c8094988345db751",
+      "tensor_count": 8,
+      "layers": [
+        11
+      ],
+      "tensor_names": [
+        "blk.11.attn_k.weight",
+        "blk.11.attn_norm.weight",
+        "blk.11.attn_q.weight",
+        "blk.11.attn_v.weight",
+        "blk.11.ffn_down.weight",
+        "blk.11.ffn_gate.weight",
+        "blk.11.ffn_norm.weight",
+        "blk.11.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 13,
+      "filename": "shard_013.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:0b6d358d1c11faa32dcd5c95e49cb3cbc8624587ac8787384dd8b8d006f8dad8",
+      "tensor_count": 8,
+      "layers": [
+        12
+      ],
+      "tensor_names": [
+        "blk.12.attn_k.weight",
+        "blk.12.attn_norm.weight",
+        "blk.12.attn_q.weight",
+        "blk.12.attn_v.weight",
+        "blk.12.ffn_down.weight",
+        "blk.12.ffn_gate.weight",
+        "blk.12.ffn_norm.weight",
+        "blk.12.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 14,
+      "filename": "shard_014.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:a39799e269c224ba0abe387ef05b505c39e739ae97b5184de489db3074dffc08",
+      "tensor_count": 8,
+      "layers": [
+        13
+      ],
+      "tensor_names": [
+        "blk.13.attn_k.weight",
+        "blk.13.attn_norm.weight",
+        "blk.13.attn_q.weight",
+        "blk.13.attn_v.weight",
+        "blk.13.ffn_down.weight",
+        "blk.13.ffn_gate.weight",
+        "blk.13.ffn_norm.weight",
+        "blk.13.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 15,
+      "filename": "shard_015.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:f6c57c48db6dae381af454316ac4f0303fc829a31c76ffc3c3f0eb1af69074e4",
+      "tensor_count": 8,
+      "layers": [
+        14
+      ],
+      "tensor_names": [
+        "blk.14.attn_k.weight",
+        "blk.14.attn_norm.weight",
+        "blk.14.attn_q.weight",
+        "blk.14.attn_v.weight",
+        "blk.14.ffn_down.weight",
+        "blk.14.ffn_gate.weight",
+        "blk.14.ffn_norm.weight",
+        "blk.14.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 16,
+      "filename": "shard_016.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:b1dff5db2b215e02a0c939480068f8e0014e9b68e9507f3aa69b0a145cffcdf5",
+      "tensor_count": 8,
+      "layers": [
+        15
+      ],
+      "tensor_names": [
+        "blk.15.attn_k.weight",
+        "blk.15.attn_norm.weight",
+        "blk.15.attn_q.weight",
+        "blk.15.attn_v.weight",
+        "blk.15.ffn_down.weight",
+        "blk.15.ffn_gate.weight",
+        "blk.15.ffn_norm.weight",
+        "blk.15.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 17,
+      "filename": "shard_017.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:fb2d71f843d1e3a8990c7b9a63fdfe682d266a26cc218f94047239dd0915faff",
+      "tensor_count": 8,
+      "layers": [
+        16
+      ],
+      "tensor_names": [
+        "blk.16.attn_k.weight",
+        "blk.16.attn_norm.weight",
+        "blk.16.attn_q.weight",
+        "blk.16.attn_v.weight",
+        "blk.16.ffn_down.weight",
+        "blk.16.ffn_gate.weight",
+        "blk.16.ffn_norm.weight",
+        "blk.16.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 18,
+      "filename": "shard_018.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:538a246ef1aa7d5a1559fb52fd395b6db4e97477c112733475fa7f6538743919",
+      "tensor_count": 8,
+      "layers": [
+        17
+      ],
+      "tensor_names": [
+        "blk.17.attn_k.weight",
+        "blk.17.attn_norm.weight",
+        "blk.17.attn_q.weight",
+        "blk.17.attn_v.weight",
+        "blk.17.ffn_down.weight",
+        "blk.17.ffn_gate.weight",
+        "blk.17.ffn_norm.weight",
+        "blk.17.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 19,
+      "filename": "shard_019.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:c36c8a06cfff0e7240abd1825cf8e672e6c327040209a0462270adfc392f6897",
+      "tensor_count": 8,
+      "layers": [
+        18
+      ],
+      "tensor_names": [
+        "blk.18.attn_k.weight",
+        "blk.18.attn_norm.weight",
+        "blk.18.attn_q.weight",
+        "blk.18.attn_v.weight",
+        "blk.18.ffn_down.weight",
+        "blk.18.ffn_gate.weight",
+        "blk.18.ffn_norm.weight",
+        "blk.18.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 20,
+      "filename": "shard_020.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:fbac0e001a019b4f5427086e40776724c3ace3242afc964e22c29370e62898e5",
+      "tensor_count": 8,
+      "layers": [
+        19
+      ],
+      "tensor_names": [
+        "blk.19.attn_k.weight",
+        "blk.19.attn_norm.weight",
+        "blk.19.attn_q.weight",
+        "blk.19.attn_v.weight",
+        "blk.19.ffn_down.weight",
+        "blk.19.ffn_gate.weight",
+        "blk.19.ffn_norm.weight",
+        "blk.19.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 21,
+      "filename": "shard_021.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:7c64e889204756b834dc6a6e228f3e87301300e16398d123ed75522cd1e2e7bd",
+      "tensor_count": 8,
+      "layers": [
+        20
+      ],
+      "tensor_names": [
+        "blk.20.attn_k.weight",
+        "blk.20.attn_norm.weight",
+        "blk.20.attn_q.weight",
+        "blk.20.attn_v.weight",
+        "blk.20.ffn_down.weight",
+        "blk.20.ffn_gate.weight",
+        "blk.20.ffn_norm.weight",
+        "blk.20.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 22,
+      "filename": "shard_022.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:a35d539d354de3152db3b52b3467c1459c7127d27dd3ae9b95ed13dd5a6fac0d",
+      "tensor_count": 8,
+      "layers": [
+        21
+      ],
+      "tensor_names": [
+        "blk.21.attn_k.weight",
+        "blk.21.attn_norm.weight",
+        "blk.21.attn_q.weight",
+        "blk.21.attn_v.weight",
+        "blk.21.ffn_down.weight",
+        "blk.21.ffn_gate.weight",
+        "blk.21.ffn_norm.weight",
+        "blk.21.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 23,
+      "filename": "shard_023.bin",
+      "size_bytes": 51339264,
+      "checksum": "sha256:bd8398d19d6680cbbd22b03876f78683fe9737161108dd1dd4d8cced9184132c",
+      "tensor_count": 8,
+      "layers": [
+        22
+      ],
+      "tensor_names": [
+        "blk.22.attn_k.weight",
+        "blk.22.attn_norm.weight",
+        "blk.22.attn_q.weight",
+        "blk.22.attn_v.weight",
+        "blk.22.ffn_down.weight",
+        "blk.22.ffn_gate.weight",
+        "blk.22.ffn_norm.weight",
+        "blk.22.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 24,
+      "filename": "shard_024.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:fb173524885b2b9f3684966c54687a2d8ed9c9a0e4d4ab7412a4dae4e0832db4",
+      "tensor_count": 8,
+      "layers": [
+        23
+      ],
+      "tensor_names": [
+        "blk.23.attn_k.weight",
+        "blk.23.attn_norm.weight",
+        "blk.23.attn_q.weight",
+        "blk.23.attn_v.weight",
+        "blk.23.ffn_down.weight",
+        "blk.23.ffn_gate.weight",
+        "blk.23.ffn_norm.weight",
+        "blk.23.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 25,
+      "filename": "shard_025.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:101a2ea26227373de2e0fc18c891529e307671aaa5285ed7d3bdad1a8939643a",
+      "tensor_count": 8,
+      "layers": [
+        24
+      ],
+      "tensor_names": [
+        "blk.24.attn_k.weight",
+        "blk.24.attn_norm.weight",
+        "blk.24.attn_q.weight",
+        "blk.24.attn_v.weight",
+        "blk.24.ffn_down.weight",
+        "blk.24.ffn_gate.weight",
+        "blk.24.ffn_norm.weight",
+        "blk.24.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 26,
+      "filename": "shard_026.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:b0bd4ac5bd161782a13a633fd006895873466bd61adc8c103f329d107c6deba4",
+      "tensor_count": 8,
+      "layers": [
+        25
+      ],
+      "tensor_names": [
+        "blk.25.attn_k.weight",
+        "blk.25.attn_norm.weight",
+        "blk.25.attn_q.weight",
+        "blk.25.attn_v.weight",
+        "blk.25.ffn_down.weight",
+        "blk.25.ffn_gate.weight",
+        "blk.25.ffn_norm.weight",
+        "blk.25.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 27,
+      "filename": "shard_027.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:90045aa08b141d400c831029703d783dc754d97bf3831a24f4cb24bb67365bfb",
+      "tensor_count": 8,
+      "layers": [
+        26
+      ],
+      "tensor_names": [
+        "blk.26.attn_k.weight",
+        "blk.26.attn_norm.weight",
+        "blk.26.attn_q.weight",
+        "blk.26.attn_v.weight",
+        "blk.26.ffn_down.weight",
+        "blk.26.ffn_gate.weight",
+        "blk.26.ffn_norm.weight",
+        "blk.26.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 28,
+      "filename": "shard_028.bin",
+      "size_bytes": 58638336,
+      "checksum": "sha256:3b512c22a1395b900617d526d9e1601fa75b4f6037dbed579b1ea314b65004f4",
+      "tensor_count": 8,
+      "layers": [
+        27
+      ],
+      "tensor_names": [
+        "blk.27.attn_k.weight",
+        "blk.27.attn_norm.weight",
+        "blk.27.attn_q.weight",
+        "blk.27.attn_v.weight",
+        "blk.27.ffn_down.weight",
+        "blk.27.ffn_gate.weight",
+        "blk.27.ffn_norm.weight",
+        "blk.27.ffn_up.weight"
+      ]
+    },
+    {
+      "id": 29,
+      "filename": "shard_029.bin",
+      "size_bytes": 148647936,
+      "checksum": "sha256:e1eb935caf3524569efabb735cbafc5d29588973e620b74eef100a2b46049991",
+      "tensor_count": 29,
+      "layers": [
+        28
+      ],
+      "tensor_names": [
+        "output_norm.weight",
+        "blk.0.attn_output.weight",
+        "blk.1.attn_output.weight",
+        "blk.2.attn_output.weight",
+        "blk.3.attn_output.weight",
+        "blk.4.attn_output.weight",
+        "blk.5.attn_output.weight",
+        "blk.6.attn_output.weight",
+        "blk.7.attn_output.weight",
+        "blk.8.attn_output.weight",
+        "blk.9.attn_output.weight",
+        "blk.10.attn_output.weight",
+        "blk.11.attn_output.weight",
+        "blk.12.attn_output.weight",
+        "blk.13.attn_output.weight",
+        "blk.14.attn_output.weight",
+        "blk.15.attn_output.weight",
+        "blk.16.attn_output.weight",
+        "blk.17.attn_output.weight",
+        "blk.18.attn_output.weight",
+        "blk.19.attn_output.weight",
+        "blk.20.attn_output.weight",
+        "blk.21.attn_output.weight",
+        "blk.22.attn_output.weight",
+        "blk.23.attn_output.weight",
+        "blk.24.attn_output.weight",
+        "blk.25.attn_output.weight",
+        "blk.26.attn_output.weight",
+        "blk.27.attn_output.weight"
+      ]
+    }
+  ]
+}
