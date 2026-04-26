@@ -136,7 +136,7 @@ app.post("/jumpstart", async function(req, res) {
     }
     
     try {
-        console.log("Jumpstart: "" + prompt.substring(0, 80) + "..."");
+        console.log("Jumpstart: " + prompt.substring(0, 80));
         
         var tokenData = await tokenize(prompt);
         var responseTokens = await generateResponse(prompt, maxInitialTokens);
@@ -177,9 +177,9 @@ app.post("/jumpstart", async function(req, res) {
 // STARTUP
 // ==========================================
 async function startup() {
-    console.log("=".repeat(50));
+    console.log(Array(51).join("="));
     console.log("STREAM LLM JUMPSTART SERVER v1.1.0");
-    console.log("=".repeat(50));
+    console.log(Array(51).join("="));
     
     var configOk = await loadConfig();
     var tokenizerOk = await loadTokenizer();
