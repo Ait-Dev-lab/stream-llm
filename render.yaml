@@ -1,0 +1,14 @@
+# render.yaml
+services:
+  - type: web
+    name: stream-llm-jumpstart
+    env: node
+    plan: free
+    rootDir: server
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: CDN_URL
+        value: https://github.com/Newton-ait/stream-llm/releases/download/v1.0.0
+      - key: PORT
+        value: "3000"
