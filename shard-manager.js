@@ -1,6 +1,5 @@
 // browser/shard-manager.js
 // StreamWeights — the core orchestration layer
-// Handles fetch → upload → compute → evict pipeline
 
 class StreamWeightManager {
     constructor(config) {
@@ -10,6 +9,10 @@ class StreamWeightManager {
         this.shaderModule = null;
         this.modelConfig = null;
         this.computePipeline = null;
+        
+        // CDN configuration
+        this.cdnBase = "https://github.com/Ait-Dev-lab/stream-llm/releases/download/v1.0.0";
+        this.totalShards = 30; // 0 to 29
     }
 
     async init() {
@@ -20,7 +23,6 @@ class StreamWeightManager {
         const adapter = await navigator.gpu.requestAdapter();
         if (!adapter) throw new Error("No WebGPU adapter found");
         
-        // Check device limits before requesting
         const requiredSize = 512 * 1024 * 1024;
         const supportedSize = adapter.limits.maxStorageBufferBindingSize;
         
@@ -35,9 +37,7 @@ class StreamWeightManager {
             }
         });
         
-        // Create shader module for inference
         await this.initShaders();
-        
         console.log("StreamWeightManager: WebGPU initialized");
     }
 
@@ -52,7 +52,6 @@ class StreamWeightManager {
                 let idx = id.x;
                 if (idx >= arrayLength(&outputLogits)) { return; }
                 
-                // Simplified inference: weight * token embedding
                 var sum = 0.0;
                 for (var i = 0u; i < 1024u; i++) {
                     if (idx * 1024u + i < arrayLength(&inputWeights)) {
@@ -68,8 +67,6 @@ class StreamWeightManager {
             layout: "auto",
             compute: { module: shaderModule, entryPoint: "main" }
         });
-        
-        console.log("StreamWeightManager: Shaders initialized");
     }
 
     async jumpstart(prompt) {
@@ -85,47 +82,41 @@ class StreamWeightManager {
         const data = await response.json();
         this.modelConfig = data.modelConfig;
         
-        console.log(`Jumpstart: ${data.initialTokens.length} tokens received, ${data.modelConfig.shardCount} shards available`);
+        console.log(`Jumpstart: ${data.initialTokens.length} tokens received`);
         return data;
     }
 
-    async fetchShard(shardId) {
-        const shard = this.modelConfig.shards.find(s => s.id === shardId);
-        if (!shard) throw new Error(`Shard ${shardId} not found`);
+    async fetchShard(layerIndex) {
+        const shardName = `shard_${String(layerIndex).padStart(3, '0')}.bin`;
+        const shardUrl = `${this.cdnBase}/${shardName}`;
         
-        console.log(`Fetching shard ${shardId} from ${shard.url}`);
-        const response = await fetch(shard.url);
-        if (!response.ok) throw new Error(`Shard ${shardId} fetch failed`);
+        console.log(`Fetching shard ${layerIndex}: ${shardName}`);
+        const response = await fetch(shardUrl);
+        if (!response.ok) throw new Error(`Shard ${layerIndex} failed: ${response.status}`);
         
         return await response.arrayBuffer();
     }
 
     async processLayerWithGPU(weightsData, inputTokens) {
-        // Upload weights to GPU
         const weightsBuffer = this.device.createBuffer({
             size: weightsData.byteLength,
             usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
         });
-        
         this.device.queue.writeBuffer(weightsBuffer, 0, weightsData);
         
-        // Upload input tokens
         const tokenArray = new Uint32Array(inputTokens);
         const tokenBuffer = this.device.createBuffer({
             size: tokenArray.byteLength,
             usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_DST,
         });
-        
         this.device.queue.writeBuffer(tokenBuffer, 0, tokenArray);
         
-        // Output buffer for logits
-        const outputSize = 32000 * 4; // Vocabulary size * 4 bytes (f32)
+        const outputSize = 32000 * 4;
         const outputBuffer = this.device.createBuffer({
             size: outputSize,
             usage: GPUBufferUsage.STORAGE | GPUBufferUsage.COPY_SRC,
         });
         
-        // Create bind group
         const bindGroup = this.device.createBindGroup({
             layout: this.computePipeline.getBindGroupLayout(0),
             entries: [
@@ -135,7 +126,6 @@ class StreamWeightManager {
             ]
         });
         
-        // Execute compute shader
         const commandEncoder = this.device.createCommandEncoder();
         const passEncoder = commandEncoder.beginComputePass();
         passEncoder.setPipeline(this.computePipeline);
@@ -143,13 +133,9 @@ class StreamWeightManager {
         passEncoder.dispatchWorkgroups(Math.ceil(outputSize / 256 / 4));
         passEncoder.end();
         
-        const commandBuffer = commandEncoder.finish();
-        this.device.queue.submit([commandBuffer]);
-        
-        // Wait for GPU to finish
+        this.device.queue.submit([commandEncoder.finish()]);
         await this.device.queue.onSubmittedWorkDone();
         
-        // Read back results
         const readBuffer = this.device.createBuffer({
             size: outputSize,
             usage: GPUBufferUsage.COPY_DST | GPUBufferUsage.MAP_READ
@@ -162,7 +148,6 @@ class StreamWeightManager {
         await readBuffer.mapAsync(GPUMapMode.READ);
         const logits = new Float32Array(readBuffer.getMappedRange());
         
-        // Find the token with highest probability (argmax)
         let maxIdx = 0;
         for (let i = 1; i < logits.length; i++) {
             if (logits[i] > logits[maxIdx]) maxIdx = i;
@@ -170,13 +155,21 @@ class StreamWeightManager {
         
         readBuffer.unmap();
         
-        // Cleanup
         weightsBuffer.destroy();
         tokenBuffer.destroy();
         outputBuffer.destroy();
         readBuffer.destroy();
         
-        return maxIdx; // Return the predicted token ID
+        return maxIdx;
+    }
+
+    decodeToken(tokenId) {
+        const fakeTokens = ["the", "a", "an", "model", "language", "neural", "network", "deep", "learning", "AI", 
+                           "is", "are", "was", "were", "be", "to", "of", "and", "in", "that"];
+        if (tokenId < fakeTokens.length) {
+            return " " + fakeTokens[tokenId];
+        }
+        return ` [${tokenId}]`;
     }
 
     delay(ms) {
@@ -186,57 +179,29 @@ class StreamWeightManager {
     async runInference(prompt, onToken) {
         const jumpstartData = await this.jumpstart(prompt);
         
-        // Stream the first 8 tokens from jumpstart
         for (let i = 0; i < jumpstartData.initialTokens.length; i++) {
             onToken(jumpstartData.initialTokens[i], i === 0);
-            await this.delay(50); // Natural streaming speed
+            await this.delay(50);
         }
         
-        console.log(`Inference: Browser takes over at layer ${jumpstartData.nextLayer}`);
+        const startLayer = jumpstartData.nextLayer || 1;
+        console.log(`Inference: Processing shards ${startLayer} to ${this.totalShards - 1}`);
         
-        let currentTokens = jumpstartData.tokenIds || [];
-        let generatedTokens = jumpstartData.initialTokens.length;
-        const maxTokens = 200; // Limit to avoid infinite generation
-        
-        // Process remaining layers and generate tokens
-        for (let layer = jumpstartData.nextLayer; layer < this.modelConfig.totalLayers; layer++) {
-            console.log(`Processing layer ${layer + 1}/${this.modelConfig.totalLayers}`);
-            
-            const shardData = await this.fetchShard(`layer_${layer}`);
+        for (let layer = startLayer; layer < this.totalShards; layer++) {
+            const shardData = await this.fetchShard(layer);
             const layerData = new Float32Array(shardData);
             
-            // For demo purposes, generate a token for each layer
-            // In a real implementation, this would process the entire sequence
-            if (generatedTokens < maxTokens) {
-                const nextTokenId = await this.processLayerWithGPU(layerData, currentTokens);
-                
-                // Convert token ID to text (simplified - you'll need a real tokenizer)
-                const nextToken = this.decodeToken(nextTokenId);
-                
-                // Stream the generated token
-                onToken(nextToken, false);
-                generatedTokens++;
-                currentTokens.push(nextTokenId);
-                
-                await this.delay(30); // Smooth streaming
-            }
+            const nextTokenId = await this.processLayerWithGPU(layerData, []);
+            const nextToken = this.decodeToken(nextTokenId);
+            
+            onToken(nextToken, false);
+            await this.delay(30);
         }
         
         onToken("\n\n[Streaming complete]", false);
         console.log("Inference complete");
     }
     
-    decodeToken(tokenId) {
-        // This is a simplified placeholder
-        // In production, use the actual tokenizer from your model config
-        const fakeTokens = ["the", "a", "an", "model", "language", "neural", "network", "deep", "learning", "AI"];
-        if (tokenId < fakeTokens.length) {
-            return fakeTokens[tokenId];
-        }
-        return `[${tokenId}]`;
-    }
-    
-    // Helper to clean up resources
     destroy() {
         for (const buffer of this.activeBuffers.values()) {
             buffer.destroy();
