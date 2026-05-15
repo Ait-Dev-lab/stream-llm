@@ -14,10 +14,10 @@ Browser (WebGPU) -> fetch -> upload -> compute -> evict -> Real-time streaming
 
 | Component | Status | URL |
 |-----------|--------|-----|
-| Web App | Live | https://newton-ait.github.io/stream-llm/ |
+| Web App | Live | https://ait-dev-lab.github.io/stream-llm/ |
 | Jumpstart Server | Live | https://stream-llm-gvta.onrender.com |
-| Model CDN | Live | https://github.com/Newton-ait/stream-llm/releases/tag/v1.0.0 |
-| Uptime Monitor | Active | UptimeRobot pings /health every 5 min |
+| Model CDN | Live | https://github.com/Ait-Dev-lab/stream-llm/releases/tag/v1.0.0 |
+| Organization | Live | https://github.com/Ait-Dev-lab |
 
 ## Model
 
