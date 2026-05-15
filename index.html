@@ -9,10 +9,11 @@
         body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #0f172a; color: #e2e8f0; }
         h1 { margin-bottom: 8px; font-size: 1.8rem; }
         .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 0.9rem; }
-        #output { white-space: pre-wrap; border: 1px solid #334155; background: #1e293b; padding: 24px; min-height: 200px; border-radius: 12px; line-height: 1.7; margin-bottom: 16px; }
-        #input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; font-size: 1rem; resize: vertical; min-height: 80px; }
-        button { margin-top: 12px; padding: 12px 28px; border-radius: 10px; border: none; background: #3b82f6; color: white; font-size: 1rem; cursor: pointer; font-weight: 500; }
-        button:disabled { background: #475569; cursor: not-allowed; }
+        #output { white-space: pre-wrap; border: 1px solid #334155; background: #1e293b; padding: 24px; min-height: 200px; border-radius: 12px; line-height: 1.7; margin-bottom: 16px; overflow-y: auto; max-height: 400px; }
+        #input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; font-size: 1rem; resize: vertical; min-height: 80px; font-family: inherit; }
+        button { margin-top: 12px; padding: 12px 28px; border-radius: 10px; border: none; background: #3b82f6; color: white; font-size: 1rem; cursor: pointer; font-weight: 500; transition: opacity 0.2s; }
+        button:disabled { background: #475569; cursor: not-allowed; opacity: 0.6; }
+        textarea:disabled { background: #0f172a; color: #64748b; cursor: not-allowed; opacity: 0.7; }
         .loading { color: #94a3b8; }
         .error { color: #f87171; }
         .warning { color: #fbbf24; }
@@ -21,7 +22,8 @@
         .badge-warning { background: #854d0e; color: #fde047; }
         .badge-error { background: #7f1d1d; color: #fca5a5; }
         .device-info { background: #1e293b; padding: 12px; border-radius: 8px; font-size: 0.8rem; margin-top: 12px; border-left: 3px solid #3b82f6; }
-        .device-info span { color: #94a3b8; }
+        .device-info span { color: #94a3b8; display: inline-block; min-width: 100px; }
+        hr { border-color: #334155; margin: 16px 0; }
     </style>
 </head>
 <body>
@@ -37,14 +39,16 @@
     
     <div id="device-info" class="device-info" style="display: none;"></div>
     
-    <textarea id="input" rows="3" placeholder="e.g., Summarize the key findings of the Bitter Lesson paper..."></textarea>
+    <textarea id="input" rows="3" placeholder="e.g., Summarize the key findings of the Bitter Lesson paper..." disabled></textarea>
     <button id="generate-btn" onclick="runInference()" disabled>Generate</button>
 
     <script type="module">
         import { StreamWeightManager } from "./shard-manager.js";
 
         // Model requirements
-        const REQUIRED_BUFFER_SIZE = 536870912; // 512 MB
+        const REQUIRED_BUFFER_MB = 512;
+        const REQUIRED_BUFFER_BYTES = REQUIRED_BUFFER_MB * 1024 * 1024;
+        
         let manager = null;
         let gpuSupported = false;
 
@@ -52,6 +56,8 @@
             const output = document.getElementById("output");
             const badge = document.getElementById("status-badge");
             const deviceInfoDiv = document.getElementById("device-info");
+            const textarea = document.getElementById("input");
+            const generateBtn = document.getElementById("generate-btn");
             
             // Check if WebGPU is available
             if (!navigator.gpu) {
@@ -65,11 +71,14 @@
                     <strong>Try:</strong><br>
                     • Update your browser to the latest version<br>
                     • Use Chrome or Edge instead of Safari/Firefox</span>`;
+                
+                textarea.disabled = true;
+                textarea.placeholder = "WebGPU not supported — please use Chrome or Edge";
+                generateBtn.disabled = true;
                 return false;
             }
             
             try {
-                // Request adapter to check capabilities
                 const adapter = await navigator.gpu.requestAdapter();
                 if (!adapter) {
                     throw new Error("No GPU adapter found");
@@ -78,35 +87,45 @@
                 const limits = adapter.limits;
                 const supportedSize = limits.maxStorageBufferBindingSize;
                 const supportedMB = Math.round(supportedSize / 1024 / 1024);
-                const requiredMB = Math.round(REQUIRED_BUFFER_SIZE / 1024 / 1024);
                 
                 // Get GPU info
                 const gpuName = adapter.info?.description || adapter.info?.vendor || "Unknown GPU";
+                const features = Array.from(adapter.features || []);
                 
                 // Display device info
                 deviceInfoDiv.style.display = "block";
                 deviceInfoDiv.innerHTML = `
                     <span>🖥️ GPU:</span> ${gpuName}<br>
-                    <span>📦 Buffer limit:</span> ${supportedMB} MB (need ${requiredMB} MB)<br>
-                    <span>✨ Features:</span> ${adapter.features.size || 0} supported
+                    <span>📦 Buffer limit:</span> ${supportedMB} MB (need ${REQUIRED_BUFFER_MB} MB)<br>
+                    <span>✨ Features:</span> ${features.length} supported
                 `;
                 
-                if (supportedSize >= REQUIRED_BUFFER_SIZE) {
+                if (supportedSize >= REQUIRED_BUFFER_BYTES) {
                     // Good GPU - can run full model
                     badge.textContent = "GPU READY";
                     badge.className = "badge badge-live";
                     output.innerHTML = '<span class="loading">✅ GPU ready! Enter a research question below.</span>';
+                    
+                    // Enable input and button
+                    textarea.disabled = false;
+                    textarea.placeholder = "e.g., Summarize the key findings of the Bitter Lesson paper...";
+                    generateBtn.disabled = false;
                     return true;
                 } else {
                     // GPU too limited
                     badge.textContent = "GPU TOO LIMITED";
                     badge.className = "badge badge-warning";
-                    output.innerHTML = `<span class="warning">⚠️ Your GPU supports ${supportedMB} MB buffer size, but this model requires ${requiredMB} MB.<br><br>
+                    output.innerHTML = `<span class="warning">⚠️ Your GPU supports ${supportedMB} MB buffer size, but this model requires ${REQUIRED_BUFFER_MB} MB.<br><br>
                         <strong>Options:</strong><br>
                         • Try a different browser (Chrome/Edge latest)<br>
                         • Use a device with a dedicated GPU<br>
                         • Check if your browser has WebGPU overrides enabled (chrome://flags/#enable-unsafe-webgpu)<br><br>
                         <em>We're working on a smaller model version for integrated GPUs.</em></span>`;
+                    
+                    // Disable input and button
+                    textarea.disabled = true;
+                    textarea.placeholder = `Your GPU only supports ${supportedMB} MB — need ${REQUIRED_BUFFER_MB} MB`;
+                    generateBtn.disabled = true;
                     return false;
                 }
                 
@@ -115,33 +134,36 @@
                 badge.textContent = "GPU ERROR";
                 badge.className = "badge badge-error";
                 output.innerHTML = `<span class="error">⚠️ Failed to check GPU: ${error.message}</span>`;
+                
+                textarea.disabled = true;
+                textarea.placeholder = "GPU check failed — please refresh or try a different browser";
+                generateBtn.disabled = true;
                 return false;
             }
         }
 
         async function init() {
-            const supported = await checkGPUSupport();
-            const btn = document.getElementById("generate-btn");
+            gpuSupported = await checkGPUSupport();
             
-            if (supported) {
+            if (gpuSupported) {
                 try {
                     manager = new StreamWeightManager({
                         jumpstartUrl: "https://stream-llm-gvta.onrender.com"
                     });
                     
                     await manager.init();
-                    btn.disabled = false;
                     document.getElementById("status-badge").textContent = "GPU READY";
                     
                 } catch (e) {
+                    console.error("Manager init error:", e);
                     document.getElementById("status-badge").textContent = "INIT ERROR";
                     document.getElementById("status-badge").className = "badge badge-error";
                     document.getElementById("output").innerHTML = 
-                        `<span class="error">⚠️ Manager initialization failed: ${e.message}</span>`;
-                    btn.disabled = true;
+                        `<span class="error">⚠️ Manager initialization failed: ${e.message}<br><br>
+                        This might be due to missing shards or network issues.</span>`;
+                    document.getElementById("generate-btn").disabled = true;
+                    document.getElementById("input").disabled = true;
                 }
-            } else {
-                btn.disabled = true;
             }
         }
 
@@ -156,9 +178,11 @@
             
             const output = document.getElementById("output");
             const btn = document.getElementById("generate-btn");
+            const textarea = document.getElementById("input");
             
             btn.disabled = true;
             btn.textContent = "Generating...";
+            textarea.disabled = true;
             output.innerHTML = '<span class="loading">Querying jumpstart server...</span>';
             
             try {
@@ -171,9 +195,11 @@
                 });
             } catch (error) {
                 output.innerHTML += `\n\n<span class="error">Error: ${error.message}</span>`;
+                console.error("Inference error:", error);
             } finally {
                 btn.disabled = false;
                 btn.textContent = "Generate";
+                textarea.disabled = false;
             }
         };
         
