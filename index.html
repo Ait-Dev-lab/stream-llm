@@ -2,45 +2,226 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <title>Stream LLM — Research Tool</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: system-ui, -apple-system, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #0f172a; color: #e2e8f0; }
-        h1 { margin-bottom: 8px; font-size: 1.8rem; }
-        .subtitle { color: #94a3b8; margin-bottom: 24px; font-size: 0.9rem; }
-        #output { white-space: pre-wrap; border: 1px solid #334155; background: #1e293b; padding: 24px; min-height: 200px; border-radius: 12px; line-height: 1.7; margin-bottom: 16px; overflow-y: auto; max-height: 400px; }
-        #input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #334155; background: #1e293b; color: #e2e8f0; font-size: 1rem; resize: vertical; min-height: 80px; font-family: inherit; }
-        button { margin-top: 12px; padding: 12px 28px; border-radius: 10px; border: none; background: #3b82f6; color: white; font-size: 1rem; cursor: pointer; font-weight: 500; transition: opacity 0.2s; }
-        button:disabled { background: #475569; cursor: not-allowed; opacity: 0.6; }
-        textarea:disabled { background: #0f172a; color: #64748b; cursor: not-allowed; opacity: 0.7; }
-        .loading { color: #94a3b8; }
-        .error { color: #f87171; }
-        .warning { color: #fbbf24; }
-        .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 500; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+        }
+        
+        body { 
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: #0f172a; 
+            color: #e2e8f0;
+            padding: 16px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* Header */
+        h1 { 
+            font-size: clamp(1.5rem, 6vw, 1.8rem); 
+            margin-bottom: 8px; 
+        }
+        
+        .subtitle { 
+            color: #94a3b8; 
+            margin-bottom: 20px; 
+            font-size: clamp(0.8rem, 4vw, 0.9rem); 
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* Output area */
+        #output { 
+            white-space: pre-wrap; 
+            border: 1px solid #334155; 
+            background: #1e293b; 
+            padding: clamp(16px, 5vw, 24px); 
+            min-height: 200px; 
+            border-radius: 12px; 
+            line-height: 1.6; 
+            margin-bottom: 16px; 
+            overflow-y: auto; 
+            max-height: 400px;
+            font-size: clamp(0.85rem, 4vw, 1rem);
+            word-break: break-word;
+        }
+        
+        /* Device info card */
+        .device-info { 
+            background: #1e293b; 
+            padding: clamp(10px, 4vw, 12px); 
+            border-radius: 10px; 
+            font-size: clamp(0.7rem, 3.5vw, 0.8rem); 
+            margin-bottom: 16px; 
+            border-left: 3px solid #3b82f6;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px 16px;
+        }
+        
+        .device-info-item {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: baseline;
+            gap: 4px;
+        }
+        
+        .device-info-item span:first-child { 
+            color: #94a3b8; 
+            font-weight: 500;
+        }
+        
+        .device-info-item span:last-child {
+            color: #e2e8f0;
+            word-break: break-word;
+        }
+        
+        /* Input area */
+        #input { 
+            width: 100%; 
+            padding: clamp(12px, 4vw, 14px); 
+            border-radius: 12px; 
+            border: 1px solid #334155; 
+            background: #1e293b; 
+            color: #e2e8f0; 
+            font-size: clamp(0.85rem, 4vw, 1rem); 
+            resize: vertical; 
+            min-height: 80px; 
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+        
+        #input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        /* Button */
+        button { 
+            margin-top: 12px; 
+            padding: clamp(10px, 4vw, 12px) clamp(20px, 8vw, 28px); 
+            border-radius: 10px; 
+            border: none; 
+            background: #3b82f6; 
+            color: white; 
+            font-size: clamp(0.85rem, 4vw, 1rem); 
+            cursor: pointer; 
+            font-weight: 500; 
+            transition: opacity 0.2s, transform 0.1s;
+            width: 100%;
+            max-width: 200px;
+        }
+        
+        button:active {
+            transform: scale(0.98);
+        }
+        
+        button:disabled { 
+            background: #475569; 
+            cursor: not-allowed; 
+            opacity: 0.6;
+            transform: none;
+        }
+        
+        /* Disabled input */
+        textarea:disabled { 
+            background: #0f172a; 
+            color: #64748b; 
+            cursor: not-allowed; 
+            opacity: 0.7;
+            border-color: #334155;
+        }
+        
+        /* Badge styles */
+        .badge { 
+            display: inline-block; 
+            padding: 3px 10px; 
+            border-radius: 20px; 
+            font-size: 0.7rem; 
+            font-weight: 600; 
+            white-space: nowrap;
+        }
+        
         .badge-live { background: #065f46; color: #6ee7b7; }
         .badge-warning { background: #854d0e; color: #fde047; }
         .badge-error { background: #7f1d1d; color: #fca5a5; }
-        .device-info { background: #1e293b; padding: 12px; border-radius: 8px; font-size: 0.8rem; margin-top: 12px; border-left: 3px solid #3b82f6; }
-        .device-info span { color: #94a3b8; display: inline-block; min-width: 100px; }
-        hr { border-color: #334155; margin: 16px 0; }
+        
+        /* Status messages */
+        .loading { color: #94a3b8; }
+        .error { color: #f87171; }
+        .warning { color: #fbbf24; }
+        
+        /* Button wrapper for alignment */
+        .button-wrapper {
+            display: flex;
+            justify-content: flex-start;
+        }
+        
+        /* Utility classes */
+        .text-small { font-size: 0.75rem; }
+        .mt-2 { margin-top: 8px; }
+        
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            body {
+                padding: 12px;
+            }
+            
+            #output {
+                padding: 16px;
+                min-height: 150px;
+                max-height: 300px;
+            }
+            
+            button {
+                max-width: 100%;
+            }
+            
+            .device-info {
+                flex-direction: column;
+                gap: 6px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .subtitle {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>🧠 Stream LLM</h1>
-    <p class="subtitle">
-        Research assistant — runs in your browser. No API keys, no rate limits.
-        <span id="status-badge" class="badge badge-live">CHECKING GPU...</span>
-    </p>
-    
-    <div id="output">
-        <span class="loading">Checking GPU capabilities...</span>
+    <div class="container">
+        <h1>🧠 Stream LLM</h1>
+        <p class="subtitle">
+            Research assistant — runs in your browser. No API keys, no rate limits.
+            <span id="status-badge" class="badge badge-live">CHECKING GPU...</span>
+        </p>
+        
+        <div id="output">
+            <span class="loading">Checking GPU capabilities...</span>
+        </div>
+        
+        <div id="device-info" class="device-info" style="display: none;"></div>
+        
+        <textarea id="input" rows="3" placeholder="e.g., Summarize the key findings of the Bitter Lesson paper..." disabled></textarea>
+        
+        <div class="button-wrapper">
+            <button id="generate-btn" onclick="runInference()" disabled>Generate</button>
+        </div>
     </div>
-    
-    <div id="device-info" class="device-info" style="display: none;"></div>
-    
-    <textarea id="input" rows="3" placeholder="e.g., Summarize the key findings of the Bitter Lesson paper..." disabled></textarea>
-    <button id="generate-btn" onclick="runInference()" disabled>Generate</button>
 
     <script type="module">
         import { StreamWeightManager } from "./shard-manager.js";
@@ -92,12 +273,12 @@
                 const gpuName = adapter.info?.description || adapter.info?.vendor || "Unknown GPU";
                 const features = Array.from(adapter.features || []);
                 
-                // Display device info
-                deviceInfoDiv.style.display = "block";
+                // Display device info in responsive format
+                deviceInfoDiv.style.display = "flex";
                 deviceInfoDiv.innerHTML = `
-                    <span>🖥️ GPU:</span> ${gpuName}<br>
-                    <span>📦 Buffer limit:</span> ${supportedMB} MB (need ${REQUIRED_BUFFER_MB} MB)<br>
-                    <span>✨ Features:</span> ${features.length} supported
+                    <div class="device-info-item"><span>🖥️ GPU:</span> <span>${gpuName}</span></div>
+                    <div class="device-info-item"><span>📦 Buffer:</span> <span>${supportedMB} MB / ${REQUIRED_BUFFER_MB} MB</span></div>
+                    <div class="device-info-item"><span>✨ Features:</span> <span>${features.length} supported</span></div>
                 `;
                 
                 if (supportedSize >= REQUIRED_BUFFER_BYTES) {
@@ -106,7 +287,6 @@
                     badge.className = "badge badge-live";
                     output.innerHTML = '<span class="loading">✅ GPU ready! Enter a research question below.</span>';
                     
-                    // Enable input and button
                     textarea.disabled = false;
                     textarea.placeholder = "e.g., Summarize the key findings of the Bitter Lesson paper...";
                     generateBtn.disabled = false;
@@ -119,10 +299,9 @@
                         <strong>Options:</strong><br>
                         • Try a different browser (Chrome/Edge latest)<br>
                         • Use a device with a dedicated GPU<br>
-                        • Check if your browser has WebGPU overrides enabled (chrome://flags/#enable-unsafe-webgpu)<br><br>
+                        • Check chrome://flags/#enable-unsafe-webgpu<br><br>
                         <em>We're working on a smaller model version for integrated GPUs.</em></span>`;
                     
-                    // Disable input and button
                     textarea.disabled = true;
                     textarea.placeholder = `Your GPU only supports ${supportedMB} MB — need ${REQUIRED_BUFFER_MB} MB`;
                     generateBtn.disabled = true;
