@@ -15,44 +15,142 @@
         button:disabled { background: #475569; cursor: not-allowed; }
         .loading { color: #94a3b8; }
         .error { color: #f87171; }
+        .warning { color: #fbbf24; }
         .badge { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 0.75rem; font-weight: 500; }
         .badge-live { background: #065f46; color: #6ee7b7; }
+        .badge-warning { background: #854d0e; color: #fde047; }
+        .badge-error { background: #7f1d1d; color: #fca5a5; }
+        .device-info { background: #1e293b; padding: 12px; border-radius: 8px; font-size: 0.8rem; margin-top: 12px; border-left: 3px solid #3b82f6; }
+        .device-info span { color: #94a3b8; }
     </style>
 </head>
 <body>
     <h1>🧠 Stream LLM</h1>
     <p class="subtitle">
         Research assistant — runs in your browser. No API keys, no rate limits.
-        <span id="status-badge" class="badge badge-live">LIVE</span>
+        <span id="status-badge" class="badge badge-live">CHECKING GPU...</span>
     </p>
     
     <div id="output">
-        <span class="loading">Ready. Enter a research question below.</span>
+        <span class="loading">Checking GPU capabilities...</span>
     </div>
     
+    <div id="device-info" class="device-info" style="display: none;"></div>
+    
     <textarea id="input" rows="3" placeholder="e.g., Summarize the key findings of the Bitter Lesson paper..."></textarea>
-    <button id="generate-btn" onclick="runInference()">Generate</button>
+    <button id="generate-btn" onclick="runInference()" disabled>Generate</button>
 
     <script type="module">
         import { StreamWeightManager } from "./shard-manager.js";
 
-        const manager = new StreamWeightManager({
-            jumpstartUrl: "https://stream-llm-gvta.onrender.com"
-        });
+        // Model requirements
+        const REQUIRED_BUFFER_SIZE = 536870912; // 512 MB
+        let manager = null;
+        let gpuSupported = false;
 
-        try {
-            await manager.init();
-            document.getElementById("status-badge").textContent = "GPU READY";
-            document.getElementById("status-badge").className = "badge badge-live";
-        } catch (e) {
-            document.getElementById("status-badge").textContent = "NO GPU";
-            document.getElementById("status-badge").className = "badge";
-            document.getElementById("output").innerHTML = 
-                `<span class="error">⚠️ ${e.message}</span>`;
-            document.getElementById("generate-btn").disabled = true;
+        async function checkGPUSupport() {
+            const output = document.getElementById("output");
+            const badge = document.getElementById("status-badge");
+            const deviceInfoDiv = document.getElementById("device-info");
+            
+            // Check if WebGPU is available
+            if (!navigator.gpu) {
+                badge.textContent = "NO WebGPU";
+                badge.className = "badge badge-error";
+                output.innerHTML = `<span class="error">⚠️ WebGPU is not supported in this browser.<br><br>
+                    <strong>Supported browsers:</strong><br>
+                    • Chrome 113+<br>
+                    • Edge 113+<br>
+                    • Chrome Canary with WebGPU flags enabled<br><br>
+                    <strong>Try:</strong><br>
+                    • Update your browser to the latest version<br>
+                    • Use Chrome or Edge instead of Safari/Firefox</span>`;
+                return false;
+            }
+            
+            try {
+                // Request adapter to check capabilities
+                const adapter = await navigator.gpu.requestAdapter();
+                if (!adapter) {
+                    throw new Error("No GPU adapter found");
+                }
+                
+                const limits = adapter.limits;
+                const supportedSize = limits.maxStorageBufferBindingSize;
+                const supportedMB = Math.round(supportedSize / 1024 / 1024);
+                const requiredMB = Math.round(REQUIRED_BUFFER_SIZE / 1024 / 1024);
+                
+                // Get GPU info
+                const gpuName = adapter.info?.description || adapter.info?.vendor || "Unknown GPU";
+                
+                // Display device info
+                deviceInfoDiv.style.display = "block";
+                deviceInfoDiv.innerHTML = `
+                    <span>🖥️ GPU:</span> ${gpuName}<br>
+                    <span>📦 Buffer limit:</span> ${supportedMB} MB (need ${requiredMB} MB)<br>
+                    <span>✨ Features:</span> ${adapter.features.size || 0} supported
+                `;
+                
+                if (supportedSize >= REQUIRED_BUFFER_SIZE) {
+                    // Good GPU - can run full model
+                    badge.textContent = "GPU READY";
+                    badge.className = "badge badge-live";
+                    output.innerHTML = '<span class="loading">✅ GPU ready! Enter a research question below.</span>';
+                    return true;
+                } else {
+                    // GPU too limited
+                    badge.textContent = "GPU TOO LIMITED";
+                    badge.className = "badge badge-warning";
+                    output.innerHTML = `<span class="warning">⚠️ Your GPU supports ${supportedMB} MB buffer size, but this model requires ${requiredMB} MB.<br><br>
+                        <strong>Options:</strong><br>
+                        • Try a different browser (Chrome/Edge latest)<br>
+                        • Use a device with a dedicated GPU<br>
+                        • Check if your browser has WebGPU overrides enabled (chrome://flags/#enable-unsafe-webgpu)<br><br>
+                        <em>We're working on a smaller model version for integrated GPUs.</em></span>`;
+                    return false;
+                }
+                
+            } catch (error) {
+                console.error("GPU check error:", error);
+                badge.textContent = "GPU ERROR";
+                badge.className = "badge badge-error";
+                output.innerHTML = `<span class="error">⚠️ Failed to check GPU: ${error.message}</span>`;
+                return false;
+            }
+        }
+
+        async function init() {
+            const supported = await checkGPUSupport();
+            const btn = document.getElementById("generate-btn");
+            
+            if (supported) {
+                try {
+                    manager = new StreamWeightManager({
+                        jumpstartUrl: "https://stream-llm-gvta.onrender.com"
+                    });
+                    
+                    await manager.init();
+                    btn.disabled = false;
+                    document.getElementById("status-badge").textContent = "GPU READY";
+                    
+                } catch (e) {
+                    document.getElementById("status-badge").textContent = "INIT ERROR";
+                    document.getElementById("status-badge").className = "badge badge-error";
+                    document.getElementById("output").innerHTML = 
+                        `<span class="error">⚠️ Manager initialization failed: ${e.message}</span>`;
+                    btn.disabled = true;
+                }
+            } else {
+                btn.disabled = true;
+            }
         }
 
         window.runInference = async function() {
+            if (!manager) {
+                alert("GPU not ready. Please check your browser/GPU compatibility.");
+                return;
+            }
+            
             const prompt = document.getElementById("input").value.trim();
             if (!prompt) return;
             
@@ -78,6 +176,9 @@
                 btn.textContent = "Generate";
             }
         };
+        
+        // Start the app
+        init();
     </script>
 </body>
 </html>
